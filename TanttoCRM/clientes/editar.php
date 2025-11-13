@@ -23,9 +23,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     header('Location: listar.php'); exit;
 }
 ?>
-<!doctype html>
-<html><head><meta charset="utf-8"><title>Editar Cliente</title><link rel="stylesheet" href="../style.css"></head>
-<body>
+<?php
+  $pageTitle = 'Editar Cliente';
+  require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/header.php';
+?>
   <div class="container">
     <div class="header"><h1 class="small">Editar Cliente</h1><div class="nav"><a href="listar.php">Voltar</a></div></div>
     <div class="card">
@@ -45,4 +46,4 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
       </form>
     </div>
   </div>
-</body></html>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/footer.php'; ?>

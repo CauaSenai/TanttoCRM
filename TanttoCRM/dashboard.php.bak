@@ -1,0 +1,87 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
+
+require 'conexao.php';
+
+// Estatísticas básicas
+$totalClientes = $pdo->query("SELECT COUNT(*) FROM clientes")->fetchColumn();
+$totalNeg = $pdo->query("SELECT COUNT(*) FROM negociacoes")->fetchColumn();
+
+$emAndamento = $pdo->prepare("SELECT COUNT(*) FROM negociacoes WHERE status = 'Em andamento'");
+$emAndamento->execute();
+$emAndamentoCount = $emAndamento->fetchColumn();
+
+// Tentativa de obter relação: top clientes por número de negociações
+$topClientNames = [];
+$topClientCounts = [];
+$clientsWithDealsCount = 0;
+
+$tried = false;
+$clientIdCols = ['id','id_cliente','cliente_id'];
+$negFkCols = ['cliente_id','id_cliente','cliente'];
+foreach ($clientIdCols as $cid) {
+    foreach ($negFkCols as $fk) {
+        try {
+            // Subquery conta negociações por cliente usando as colunas candidatas
+            $sql = "SELECT c.nome AS nome, (SELECT COUNT(*) FROM negociacoes n WHERE n." . $fk . " = c." . $cid . ") AS deals FROM clientes c ORDER BY deals DESC LIMIT 10";
+            $stmt = $pdo->query($sql);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if ($rows && count($rows) > 0) {
+                // Verifica se a coluna 'nome' existe na tabela clientes
+                if (array_key_exists('nome', $rows[0])) {
+                    $tried = true;
+                    foreach ($rows as $r) {
+                        $topClientNames[] = $r['nome'] ?? '—';
+                        $topClientCounts[] = (int)$r['deals'];
+                    }
+                    // Conta quantos clientes têm pelo menos 1 negociação
+                    $cntStmt = $pdo->query("SELECT COUNT(DISTINCT n." . $fk . ") FROM negociacoes n WHERE n." . $fk . " IS NOT NULL");
+                    $clientsWithDealsCount = (int)$cntStmt->fetchColumn();
+                    break 2;
+                }
+            }
+        } catch (Exception $e) {
+            // tenta próxima combinação
+        }
+    }
+}
+
+// Fallbacks se não houver dados por cliente
+if (!$tried) {
+    // usamos aproximações simples
+    $avgDealsPerClient = $totalClientes > 0 ? round($totalNeg / $totalClientes, 2) : 0;
+    $topClientNames = ['Média por cliente'];
+    $topClientCounts = [(float)$avgDealsPerClient];
+    $clientsWithDealsCount = ($totalNeg > 0 && $totalClientes > 0) ? min($totalClientes, $totalNeg) : 0;
+}
+?>
+<?php
+  $pageTitle = 'Painel - Tantto CRM';
+  require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/header.php';
+?>
+    <h1>Painel de Controle</h1>
+    
+    <div class="grid" style="margin-top: 24px;">
+        <div class="card">
+            <h2>Total de Clientes</h2>
+            <div class="big-number"><?= $totalClientes ?></div>
+            <a href="clientes/listar.php" class="button" style="margin-top:16px;">Ver Lista</a>
+        </div>
+
+        <div class="card">
+            <h2>Total de Negociações</h2>
+            <div class="big-number"><?= $totalNeg ?></div>
+            <a href="negociacoes/listar.php" class="button" style="margin-top:16px;">Ver Lista</a>
+        </div>
+
+        <div class="card">
+            <h2>Em Andamento</h2>
+            <div class="big-number"><?= $emAndamentoCount ?></div>
+        </div>
+    </div>
+
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/footer.php'; ?>

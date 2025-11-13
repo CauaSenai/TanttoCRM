@@ -1,33 +1,303 @@
 :root{
-  --bg:#0b0f12;
-  --card:#111418;
-  --text:#e6eef3;
-  --muted:#9aa5ad;
-  --accent:#00bfff;
-  --danger:#ff6b6b;
+  --bg: #0b0f12;
+  --card: #0f1416;
+  --surface: #0b1113;
+  --text: #e6eef3;
+  --muted: #9aa5ad;
+  --accent: #00bfff;
+  --accent-2: #3dd6ff;
+  --danger: #ff6b6b;
+  --glass: rgba(255,255,255,0.03);
+  --radius: 10px;
+  --container-max: 1200px;
 }
-*{box-sizing:border-box;font-family:Inter,Segoe UI,Arial,sans-serif}
-body{margin:0;background:var(--bg);color:var(--text)}
-.container{max-width:1100px;margin:30px auto;padding:20px}
-.header{display:flex;align-items:center;justify-content:space-between}
-.card{background:var(--card);padding:16px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.5)}
-h1,h2{margin:0 0 12px}
-a.button{display:inline-block;padding:8px 12px;background:var(--accent);color:#001; border-radius:6px;text-decoration:none;font-weight:600}
-.table{width:100%;border-collapse:collapse}
-.table th{ text-align:left;padding:10px;color:var(--muted);font-size:13px}
-.table td{padding:10px;border-top:1px solid rgba(255,255,255,0.03)}
+
+/* Base */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: linear-gradient(180deg, #071012 0%, var(--bg) 100%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+.container{
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Page header styling */
+.header{
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--glass);
+}
+.header h1{
+  font-size: 24px;
+  margin: 0;
+}
+.header p{
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+
+/* Header / Nav */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand h1{font-size:18px;margin:0}
+.nav{display:flex;gap:8px;align-items:center}
+.nav a{color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:600;font-size:14px}
+.nav a.active{background:rgba(255,255,255,0.03);color:var(--text)}
+
+/* Card */
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid var(--glass);
+  padding:18px;
+  border-radius:var(--radius);
+  box-shadow: 0 6px 18px rgba(2,6,8,0.6);
+}
+
+h1,h2{margin:0 0 10px}
+
+/* Buttons / Links */
+a.button, .btn{display:inline-block;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:700;cursor:pointer;border:none;white-space:nowrap}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* Action dropdown: Edit + menu (contains Excluir) */
+.action-dropdown{position:relative;display:inline-flex;align-items:center;gap:6px}
+.action-dropdown .dropdown-toggle{padding:8px 10px;border-radius:8px;background:transparent;border:1px solid var(--glass);color:var(--text);cursor:pointer}
+.action-dropdown .dropdown-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:160px;background:var(--card);border:1px solid var(--glass);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.5);padding:6px;display:none;z-index:80}
+.action-dropdown .dropdown-menu.show{display:block}
+.action-dropdown .dropdown-item{display:block;padding:8px 10px;border-radius:6px;color:var(--text);text-decoration:none}
+.action-dropdown .dropdown-item:hover{background:rgba(255,255,255,0.02)}
+
+@media (max-width:420px){
+  .action-dropdown .dropdown-menu{right:auto;left:0;min-width:120px}
+}
+a.button{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#001}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#001}
+.btn.ghost{background:transparent;border:1px solid var(--glass);color:var(--text)}
+.btn.danger{background:linear-gradient(90deg,var(--danger),#ff4b4b);color:#fff}
+
+/* Forms */
 .form-row{display:flex;gap:12px;flex-wrap:wrap}
-.form-group{flex:1;min-width:180px}
+.form-group{flex:1;min-width:160px}
 label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
 input[type="text"],input[type="email"],input[type="date"],select,textarea{
-  width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);
-  background:#0b1113;color:var(--text)
+  width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);
+  background:var(--surface);color:var(--text);outline:none;font-size:14px
 }
-.btn{padding:8px 12px;border-radius:6px;border:none;cursor:pointer}
-.btn.primary{background:var(--accent);color:#001}
-.btn.danger{background:var(--danger);color:#fff}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px rgba(0,191,255,0.08);border-color:var(--accent-2)}
+
+/* Tables */
+.table-wrap{width:100%;overflow:auto;border-radius:8px}
+.table{width:100%;border-collapse:collapse;min-width:640px}
+.table th{ text-align:left;padding:12px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--glass)}
+.table td{padding:12px;border-top:1px solid rgba(255,255,255,0.02);vertical-align:middle}
+.table tr:hover td{background:rgba(255,255,255,0.01)}
+
+/* Responsive table -> stack rows on small screens */
+@media (max-width:720px){
+  .table{min-width:100%}
+  .table thead{display:none}
+  .table tr{display:block;margin-bottom:12px;border-bottom:1px dashed rgba(255,255,255,0.03)}
+  .table td{display:flex;justify-content:space-between;padding:10px 8px}
+  .table td::before{content:attr(data-label);font-weight:600;color:var(--muted);margin-right:8px}
+}
+
+/* Dashboard grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+
+/* Utilities */
 .small{font-size:13px;color:var(--muted)}
-.nav{display:flex;gap:8px}
-.nav a{color:var(--muted);text-decoration:none;padding:6px 8px;border-radius:6px}
-.nav a.active{background:rgba(0,0,0,0.3);color:var(--text)}
-.footer{margin-top:20px;color:var(--muted);font-size:13px}
+.muted{color:var(--muted)}
+.text-right{text-align:right}
+
+/* Footer */
+.footer{margin-top:22px;color:var(--muted);font-size:13px}
+
+/* Adaptive spacing for small devices */
+@media (max-width:720px){
+  .container{padding:12px;margin:14px auto}
+  .brand h1{font-size:16px}
+  a.button, .btn{padding:9px 12px}
+}
+
+@media (max-width:420px){
+  .header{flex-direction:column;align-items:flex-start;gap:8px}
+  .nav{width:100%;display:flex;overflow:auto}
+  .nav a{white-space:nowrap}
+}
+
+/* Small polish for forms inside cards */
+.card .form-group + .form-group{margin-top:8px}
+
+/* helper for right aligned numbers */
+.big-number{font-size:28px;font-weight:700}
+
+
+.top-nav {
+  background: linear-gradient(180deg, var(--card) 0%, var(--surface) 100%);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.2);
+  padding: 24px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--glass);
+}
+
+/* Left fixed navigation */
+.left-nav{
+  position:fixed;
+  left:0;top:0;bottom:0;
+  width:240px;
+  padding:22px 18px;
+  background: linear-gradient(180deg, var(--card) 0%, var(--surface) 100%);
+  border-right:1px solid var(--glass);
+  box-shadow: 2px 0 20px rgba(0,0,0,0.3);
+  z-index:80;
+  overflow:auto;
+}
+.left-nav .left-brand{margin-bottom:18px}
+.left-nav .left-brand h2{margin:0 0 6px;color:var(--accent-2)}
+.left-nav .left-brand .small{color:var(--muted);font-size:13px}
+.left-nav .left-menu{display:flex;flex-direction:column;gap:10px}
+.left-nav .nav-link{display:block;text-align:left;padding:10px 12px}
+.left-nav .left-logout{margin-top:18px;border-top:1px solid var(--glass);padding-top:12px}
+
+.content{margin-left:260px;padding:24px;min-height:100vh}
+
+/* Chart container: limita altura máxima para evitar estender a página */
+.chart-wrap{
+  width:100%;
+  height:320px; /* altura padrão */
+  max-height:420px;
+  display:block;
+  position:relative;
+}
+.chart-wrap canvas{width:100% !important;height:100% !important;display:block}
+
+.brand {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--glass);
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 28px;
+  color: var(--accent-2);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+.brand .small {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.main-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 360px;
+  margin: 0 auto;
+  align-items: stretch;
+}
+
+/* Nav links: padronizados para combinar com botões do site */
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 15px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid var(--glass);
+  transition: background .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  background: linear-gradient(90deg, rgba(0,191,255,0.06), rgba(61,214,255,0.03));
+  color: var(--accent-2);
+  border-color: rgba(0,191,255,0.18);
+  box-shadow: 0 10px 30px rgba(0,191,255,0.08);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.nav-link:active { transform: translateY(0); }
+
+.nav-link.active {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #001;
+  border: none;
+  box-shadow: 0 12px 36px rgba(0,191,255,0.18);
+}
+
+/* Logout mantém destaque no estilo do site */
+.nav-link[href$="logout.php"] {
+  margin-top: 8px;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid rgba(255,107,107,0.12);
+}
+
+.nav-link[href$="logout.php"]:hover {
+  background: linear-gradient(90deg, var(--danger), #ff4b4b);
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 26px rgba(255,107,107,0.18);
+}
+
+/* Left-nav specific adjustments (override generic .nav-link for left column) */
+.left-nav .nav-link{ justify-content:flex-start; text-align:left; padding:10px 14px; }
+.left-nav .nav-link::before{ margin-right:10px }
+
+@media (max-width: 768px) {
+  .top-nav {
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .brand h1 {
+    font-size: 24px;
+  }
+  
+  .nav-link {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Make left-nav collapse on small screens */
+@media (max-width:900px){
+  .left-nav{position:relative;width:100%;height:auto;border-right:none;box-shadow:none;padding:12px 10px;display:flex;align-items:center;gap:12px}
+  .left-nav .left-menu{flex-direction:row;gap:8px;overflow:auto}
+  .left-nav .nav-link{white-space:nowrap;padding:8px 10px}
+  .content{margin-left:0;padding:16px}
+}
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 24px;
+}
+

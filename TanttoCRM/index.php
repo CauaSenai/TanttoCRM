@@ -45,14 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Tantto - Entrar</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<?php
+  $pageTitle = 'Tantto - Entrar';
+  require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/header.php';
+?>
   <div class="container">
     <div class="card" style="max-width:480px;margin:40px auto;">
       <h1>Tantto CRM</h1>
@@ -79,5 +75,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </form>
     </div>
   </div>
-</body>
-</html>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/footer.php'; ?>

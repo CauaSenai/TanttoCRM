@@ -26,9 +26,15 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     header('Location: listar.php'); exit;
 }
 ?>
-<!doctype html>
-<html><head><meta charset="utf-8"><title>Editar Negociação</title><link rel="stylesheet" href="../style.css"></head>
-<body>
+<?php
+  // generate a one-time CSRF token for the delete form
+  if (session_status() === PHP_SESSION_NONE) session_start();
+  $csrf_token = bin2hex(random_bytes(32));
+  $_SESSION['csrf_token'] = $csrf_token;
+
+  $pageTitle = 'Editar Negociação';
+  require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/header.php';
+?>
   <div class="container">
     <div class="header"><h1 class="small">Editar Negociação</h1><div class="nav"><a href="listar.php">Voltar</a></div></div>
     <div class="card">
@@ -61,11 +67,18 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         <div class="form-row">
           <div class="form-group"><label>Observações</label><textarea name="observacoes"><?=htmlspecialchars($negociacao['observacoes'])?></textarea></div>
         </div>
-        <div style="margin-top:12px">
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
           <button class="btn primary" type="submit">Salvar</button>
           <a href="listar.php" class="btn">Cancelar</a>
         </div>
       </form>
+
+      <!-- Delete form separate to avoid nested forms -->
+      <form method="post" action="excluir.php" onsubmit="return confirm('Excluir esta negociação?')" style="margin-top:12px">
+        <input type="hidden" name="id" value="<?= $id ?>">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+        <button type="submit" class="btn danger">Excluir negociação</button>
+      </form>
     </div>
   </div>
-</body></html>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/footer.php'; ?>

@@ -1,7 +1,7 @@
 <?php
 session_start();
-if(!isset($_SESSION['user_id'])){ header('Location: ./index.php'); exit; }
-require 'conexao.php';
+if(!isset($_SESSION['user_id'])){ header('Location: ../index.php'); exit; }
+require '../conexao.php';
 
 $stmt = $pdo->query("SELECT n.*, c.nome AS cliente_nome, u.nome AS usuario_nome
                      FROM negociacoes n
@@ -10,42 +10,49 @@ $stmt = $pdo->query("SELECT n.*, c.nome AS cliente_nome, u.nome AS usuario_nome
                      ORDER BY n.data_inicio DESC");
 $negociacoes = $stmt->fetchAll();
 ?>
-<!doctype html>
-<html><head><meta charset="utf-8"><title>Negociações - Tantto</title><link rel="stylesheet" href="style.css"></head>
-<body>
-  <div class="container">
+<?php
+  $pageTitle = 'Negociações - Tantto CRM';
+  require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/header.php';
+?>
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="content">
     <div class="header">
-      <h1 class="small">Negociações</h1>
-      <div class="nav">
-        <a href="../dashboard.php">Painel</a>
-        <a href="/TanttoCRM/clientes/listar.php">Clientes</a>
-        <a href="cadastrar.php" class="button">Adicionar Negociação</a>
-        <a href="../logout.php">Sair</a>
-      </div>
+      <h1>Negociações</h1>
+      <a href="cadastrar.php" class="button">Nova Negociação</a>
     </div>
 
     <div class="card">
       <table class="table">
-        <thead><tr><th>Título</th><th>Cliente</th><th>Responsável</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Cliente</th>
+            <th>Responsável</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Descrição</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
         <tbody>
           <?php foreach($negociacoes as $n): ?>
             <tr>
-              <td><?=htmlspecialchars($n['titulo'])?></td>
+              <td><?=htmlspecialchars($n['titulo'] ?? '—')?></td>
               <td><?=htmlspecialchars($n['cliente_nome'] ?? '—')?></td>
               <td><?=htmlspecialchars($n['usuario_nome'] ?? '—')?></td>
               <td>R$ <?=number_format($n['valor'],2,',','.')?></td>
               <td><?=htmlspecialchars($n['status'])?></td>
+              <td><?=htmlspecialchars($n['observacoes'] ?? '—')?></td>
               <td>
-                <a href="editar.php?id=<?= $n['id_negociacao'] ?>" class="btn">Editar</a>
-                <a href="excluir.php?id=<?= $n['id_negociacao'] ?>" class="btn danger" onclick="return confirm('Excluir esta negociação?')">Excluir</a>
+                <a href="editar.php?id=<?= $n['id_negociacao'] ?>" class="btn primary">Editar</a>
               </td>
             </tr>
           <?php endforeach; ?>
           <?php if(!count($negociacoes)): ?>
-            <tr><td colspan="6" class="small">Nenhuma negociação cadastrada.</td></tr>
+            <tr><td colspan="7" class="small">Nenhuma negociação cadastrada.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>
     </div>
   </div>
-</body></html>
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/TanttoCRM/includes/footer.php'; ?>
