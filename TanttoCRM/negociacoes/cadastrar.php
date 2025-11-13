@@ -9,14 +9,58 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $cliente_id = intval($_POST['cliente_id'] ?? 0);
     $titulo = trim($_POST['titulo']);
     $valor = floatval(str_replace(',','.',$_POST['valor'] ?? 0));
-    $status = $_POST['status'] ?? 'Em andamento';
+    $status = $_POST['status'] ?? 'Prospecção';
     $data_inicio = $_POST['data_inicio'] ?: null;
     $obs = trim($_POST['observacoes']);
     $usuario_id = $_SESSION['user_id'];
 
-    $ins = $pdo->prepare("INSERT INTO negociacoes (cliente_id, usuario_id, titulo, valor, status, data_inicio, observacoes) VALUES (?,?,?,?,?,?,?)");
+  // Evitar duplicata: mesmo título para o mesmo cliente
+  $dup = $pdo->prepare("SELECT id_negociacao FROM negociacoes WHERE cliente_id = ? AND titulo = ? LIMIT 1");
+  $dup->execute([$cliente_id, $titulo]);
+  if ($dup->fetch()) {
+    $msg = 'Já existe uma negociação com este título para o cliente selecionado.';
+  } else {
+  // Garantir que usuario_id referencia um usuário válido; se não, usar NULL para evitar violação de FK
+  if (!empty($usuario_id)) {
+    $chk = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE id_usuario = ? LIMIT 1");
+    $chk->execute([$usuario_id]);
+    $found = $chk->fetch();
+    if (!$found) {
+      // usuário da sessão não existe no banco (pode ter sido removido) -> colocar NULL
+      $usuario_id = null;
+    }
+  } else {
+    $usuario_id = null;
+  }
+
+  $ins = $pdo->prepare("INSERT INTO negociacoes (cliente_id, usuario_id, titulo, valor, status, data_inicio, observacoes) VALUES (?,?,?,?,?,?,?)");
+  try {
     $ins->execute([$cliente_id,$usuario_id,$titulo,$valor,$status,$data_inicio,$obs]);
-    header('Location: listar.php'); exit;
+  } catch (PDOException $e) {
+    // Se por algum motivo ainda ocorrer violação de FK, tentar novamente sem usuario_id
+    if (strpos($e->getMessage(), '1452') !== false || strpos($e->getMessage(), 'foreign key') !== false) {
+      try {
+        $ins2 = $pdo->prepare("INSERT INTO negociacoes (cliente_id, usuario_id, titulo, valor, status, data_inicio, observacoes) VALUES (?,?,?,?,?,?,?)");
+        $ins2->execute([$cliente_id, null, $titulo, $valor, $status, $data_inicio, $obs]);
+      } catch (PDOException $e2) {
+        // registrar e re-throw para debugging
+        error_log('Erro ao inserir negociacao mesmo sem usuario_id: ' . $e2->getMessage());
+        throw $e2;
+      }
+    } else {
+      // re-throw outros erros
+      throw $e;
+    }
+  }
+    $newId = $pdo->lastInsertId();
+     try {
+       $insLog = $pdo->prepare("INSERT INTO auditoria (entidade_tipo, entidade_id, usuario_id, acao, valor_novo) VALUES (?,?,?,?,?)");
+       $insLog->execute(['negociacao', $newId, $_SESSION['user_id'] ?? null, 'create', json_encode(['titulo'=>$titulo,'valor'=>$valor,'status'=>$status,'cliente_id'=>$cliente_id])]);
+        } catch (PDOException $e) {
+          error_log('Falha ao gravar auditoria (cadastrar negociacao): ' . $e->getMessage());
+        }
+        header('Location: listar.php'); exit;
+    }
 }
 ?>
 <?php
@@ -42,8 +86,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
           <div class="form-group"><label>Valor (ex: 1500.00)</label><input type="text" name="valor"></div>
           <div class="form-group"><label>Status</label>
             <select name="status">
-              <option>Em andamento</option>
-              <option>Concluída</option>
+              <option>Prospecção</option>
+              <option>Qualificação</option>
+              <option>Proposta</option>
+              <option>Negociação</option>
+              <option>Fechamento</option>
               <option>Perdida</option>
             </select>
           </div>

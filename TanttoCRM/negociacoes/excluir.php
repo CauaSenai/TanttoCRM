@@ -17,6 +17,18 @@ if (!$id || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token
     header('Location: listar.php'); exit;
 }
 
+$row = $pdo->prepare("SELECT * FROM negociacoes WHERE id_negociacao = ?");
+$row->execute([$id]);
+$r = $row->fetch(PDO::FETCH_ASSOC);
+if($r){
+    try {
+        $ins = $pdo->prepare("INSERT INTO auditoria (entidade_tipo, entidade_id, usuario_id, acao, valor_antigo) VALUES (?,?,?,?,?)");
+        $ins->execute(['negociacao', $id, $_SESSION['user_id'] ?? null, 'delete', json_encode($r)]);
+    } catch (PDOException $e) {
+        error_log('Falha ao gravar auditoria (excluir negociacao): ' . $e->getMessage());
+    }
+}
+
 $del = $pdo->prepare("DELETE FROM negociacoes WHERE id_negociacao = ?");
 $del->execute([$id]);
 

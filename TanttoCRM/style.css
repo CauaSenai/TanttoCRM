@@ -118,6 +118,15 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px rgba(0,191,255,0.08
 /* Dashboard grid */
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
 
+/* Big number styling (for KPIs) */
+.big-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--accent-2);
+  margin: 12px 0;
+  line-height: 1;
+}
+
 /* Utilities */
 .small{font-size:13px;color:var(--muted)}
 .muted{color:var(--muted)}
@@ -301,3 +310,69 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px rgba(0,191,255,0.08
   padding: 24px;
 }
 
+/* Filtros e Busca */
+.filter-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-form .form-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-form label {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.filter-form input,
+.filter-form select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.filter-form input:focus,
+.filter-form select:focus {
+  box-shadow: 0 0 0 4px rgba(0, 191, 255, 0.08);
+  border-color: var(--accent-2);
+  outline: none;
+}
+
+.filter-info {
+  margin-bottom: 12px;
+  padding: 12px;
+  background: rgba(0, 191, 255, 0.1);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.filter-info strong {
+  color: var(--text);
+}
+
+/* Kanban Cards */
+.kanban-card {
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 10px;
+  transition: all 0.2s ease;
+}
+
+.kanban-card:hover {
+  background: rgba(0, 191, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.15);
+  transform: translateY(-2px);
+}

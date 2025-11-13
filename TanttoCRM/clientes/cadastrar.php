@@ -11,10 +11,27 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $empresa = trim($_POST['empresa']);
     $cidade = trim($_POST['cidade']);
 
-    $stmt = $pdo->prepare("INSERT INTO clientes (nome,email,telefone,empresa,cidade) VALUES (?,?,?,?,?)");
-    $stmt->execute([$nome,$email,$telefone,$empresa,$cidade]);
-    header('Location: listar.php');
-    exit;
+    // Evitar duplicatas por e-mail ou telefone
+    $dupStmt = $pdo->prepare("SELECT id_cliente FROM clientes WHERE (email = ? AND ? <> '') OR (telefone = ? AND ? <> '') LIMIT 1");
+    $dupStmt->execute([$email, $email, $telefone, $telefone]);
+    $exists = $dupStmt->fetch();
+    if ($exists) {
+        $msg = 'Já existe um cliente com este e-mail ou telefone.';
+    } else {
+        $stmt = $pdo->prepare("INSERT INTO clientes (nome,email,telefone,empresa,cidade) VALUES (?,?,?,?,?)");
+        $stmt->execute([$nome,$email,$telefone,$empresa,$cidade]);
+        $newId = $pdo->lastInsertId();
+        // log creation (wrap in try/catch so missing audit table/columns won't break the request)
+        try {
+            $insLog = $pdo->prepare("INSERT INTO auditoria (entidade_tipo, entidade_id, usuario_id, acao, valor_novo) VALUES (?,?,?,?,?)");
+            $insLog->execute(['cliente', $newId, $_SESSION['user_id'] ?? null, 'create', json_encode(['nome'=>$nome,'email'=>$email,'telefone'=>$telefone,'empresa'=>$empresa,'cidade'=>$cidade])]);
+        } catch (PDOException $e) {
+            error_log("Auditoria falhou (cadastrar cliente): " . $e->getMessage());
+        }
+
+        header('Location: listar.php');
+        exit;
+    }
 }
 ?>
 <?php
@@ -31,6 +48,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         </div>
         <div class="form-row">
           <div class="form-group"><label>Telefone</label><input type="text" name="telefone"></div>
+          <div class="form-group"><label>Cidade</label><input type="text" name="cidade" placeholder="Cidade"></div>
           <div class="form-group"><label>Empresa</label><input type="text" name="empresa"></div>
         </div>
         <div style="margin-top:12px">
